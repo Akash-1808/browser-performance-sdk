@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDK Test Page</title>
+    <!-- We will load the bundled SDK here. Make sure data-project-id is set -->
+    <script src="./sdk/dist/sdk.js" data-project-id="test-123"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .box {
+            padding: 2rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Browser Performance SDK Test</h1>
+    
+    <div class="box" id="test-container">
+        <h2>Interactive Elements</h2>
+        <p>Interact with this page to trigger DOM mutations, inputs, and layout shifts.</p>
+        
+        <button id="add-node-btn">Add DOM Node</button>
+        <button id="trigger-error-btn">Trigger JS Error</button>
+        
+        <div id="dynamic-content" style="margin-top: 1rem;"></div>
+    </div>
+
+    <script>
+        // Simple script to trigger mutations for testing the replay/selector logic
+        document.getElementById('add-node-btn').addEventListener('click', () => {
+            const el = document.createElement('p');
+            el.textContent = 'New dynamic node added at ' + new Date().toLocaleTimeString();
+            document.getElementById('dynamic-content').appendChild(el);
+        });
+
+        // Trigger an error to test error boundary catching
+        document.getElementById('trigger-error-btn').addEventListener('click', () => {
+            throw new Error("Test error triggered by button click!");
+        });
+    </script>
+</body>
+</html>
