@@ -23,8 +23,9 @@ const FLUSH_INTERVAL_MS = 2000
 const MAX_QUEUE_SIZE = 200  // safety cap- avoid gaint payloads
 
 // Called once from index.ts before any events are queued
-export function setMeta(m: BeaconMeta): void {
+export function setMeta(m: BeaconMeta, url: string): void {
     meta = m
+    ingestUrl = url
 }
 
 export function enqueue(event: QueuedEvent): void {

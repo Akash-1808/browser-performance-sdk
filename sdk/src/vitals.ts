@@ -27,6 +27,10 @@ let enqueueFn: EnqueueFn
 export function initVitals(enqueue: EnqueueFn) {
     enqueueFn = enqueue
     observeLcp()
+    observeCls()
+    observeFid()
+    captureTtfb()
+    listenForUserInteractions()
 }
 
 // Called from index.ts on visibilitychange:hidden — takes the last LCP value

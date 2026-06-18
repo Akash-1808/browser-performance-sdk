@@ -4,7 +4,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import ingestRoute from './routes/ingest'
 import { migrate } from './db/db';
+import metricsRoute from './routes/metrics'
 import { setupWebsocket } from './ws';
+import sessionsRoute from './routes/sessions'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +17,7 @@ const PORT = 3000;
 // 1. Enable CORS for all origins
 app.use(cors({
     origin: '*',
-    methods: ['POST', 'OPTIONS'],
+    methods: ['POST', 'OPTIONS', 'GET'],
     allowedHeaders: ['Content-Type']
 }));
 
@@ -30,7 +32,11 @@ const projectRoot = path.resolve(__dirname, '..', '..');
 app.use(express.static(projectRoot));
 
 // 3. The ingest route
-app.use('/', ingestRoute)
+app.use('/api', ingestRoute)
+
+// metrics route
+app.use('/api', metricsRoute)
+app.use('/api', sessionsRoute)
 
 async function start() {
     await migrate();

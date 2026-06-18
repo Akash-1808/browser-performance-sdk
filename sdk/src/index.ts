@@ -19,7 +19,7 @@ const scriptEl = document.currentScript as HTMLScriptElement | null
 
 const config: SdkConfig = {
     projectId: scriptEl?.getAttribute('data-project-id') ?? '',
-    ingestUrl: scriptEl?.getAttribute('data-ingest-url') ?? 'http://localhost:3000/ingest',
+    ingestUrl: scriptEl?.getAttribute('data-ingest-url') ?? 'http://localhost:3000/api/ingest',
     debug: scriptEl?.getAttribute('data-debug') === 'true'
 }
 
@@ -37,7 +37,7 @@ setMeta({
     domain: location.hostname,
     timestamp: Date.now(),
     url: location.href,
-})
+}, config.ingestUrl)
 
 // ─── 4. Initialize observers after DOM is ready ─────────────────────
 function init(): void {
