@@ -37,14 +37,16 @@ router.post('/ingest', async (req: Request, res: Response) => {
         let idx = 1;
 
         for (const event of events) {
+            const { type, value, ...rest } = event;
+
             placeholder.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`)
             val.push(
                 domain,
                 projectId,
                 sessionId,
-                event.type,
-                event.value ?? null,
-                event.meta ? JSON.stringify(event.meta) : null
+                type,
+                value ?? null,
+                Object.keys(rest).length > 0 ? JSON.stringify(rest) : null
             )
         }
 

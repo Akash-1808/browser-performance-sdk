@@ -5,6 +5,7 @@ import heroImg from './assets/hero.png'
 import './App.css'
 import { OverviewPage } from './pages/Overview'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { SessionsPage } from './pages/Sessions'
 
 const queryClient = new QueryClient()
 
@@ -13,7 +14,8 @@ function App() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <OverviewPage />
+        {/* <OverviewPage /> */}
+        <SessionsPage />
       </QueryClientProvider>
     </>
   )
