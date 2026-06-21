@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useDomain } from "../context/DomainContext";
@@ -59,7 +59,7 @@ export function SessionsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {sessions.map((session) => (
+                        {sessions?.map((session) => (
                             <tr key={session.session_id} style={{
                                 borderBottom: '1px solid var(--borer-subtle)',
                                 cursor: 'pointer'

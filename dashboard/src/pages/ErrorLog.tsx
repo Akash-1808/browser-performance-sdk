@@ -47,7 +47,7 @@ export function ErrorLog() {
                         </tr>
                     </thead>
                     <tbody>
-                        {errors.map((err, index) => (
+                        {errors?.map((err, index) => (
                             <tr key={index}
                                 onClick={() => setSelectedError(err)}
                                 style={{

@@ -1,15 +1,17 @@
 import './App.css'
-import { OverviewPage } from './pages/Overview'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { SessionsPage } from './pages/Sessions'
-import { ErrorLog } from './pages/ErrorLog'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { DomainProvider, useDomain } from './context/DomainContext'
-import { SessionDetail } from './pages/SessionDetail'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { Login } from './pages/Login'
 import { useQueryClient } from '@tanstack/react-query'
+
+// Lazy-load heavy pages so the initial bundle stays small
+const OverviewPage = lazy(() => import('./pages/Overview').then(m => ({ default: m.OverviewPage })))
+const SessionsPage = lazy(() => import('./pages/Sessions').then(m => ({ default: m.SessionsPage })))
+const ErrorLog = lazy(() => import('./pages/ErrorLog').then(m => ({ default: m.ErrorLog })))
+const SessionDetail = lazy(() => import('./pages/SessionDetail').then(m => ({ default: m.SessionDetail })))
 
 const queryClient = new QueryClient()
 
@@ -237,13 +239,15 @@ function App() {
                 flex: 1,
                 overflowY: 'auto'
               }}>
-                <Routes>
-                  <Route path='/login' element={<Login />} />
-                  <Route path='/' element={<OverviewPage />} />
-                  <Route path="/sessions" element={<SessionsPage />} />
-                  <Route path='/sessions/:id' element={<SessionDetail />} />
-                  <Route path="/errors" element={<ErrorLog />} />
-                </Routes>
+                <Suspense fallback={<div className="container flex-center">Loading...</div>}>
+                  <Routes>
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/' element={<OverviewPage />} />
+                    <Route path="/sessions" element={<SessionsPage />} />
+                    <Route path='/sessions/:id' element={<SessionDetail />} />
+                    <Route path="/errors" element={<ErrorLog />} />
+                  </Routes>
+                </Suspense>
               </div>
             </div>
           </BrowserRouter>

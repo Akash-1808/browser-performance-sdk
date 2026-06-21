@@ -67,7 +67,7 @@ export function ReplayPlayer({ mutations }: ReplayPlayerProps) {
         // Apply attribute changes
         if (diff.attr && targetEl instanceof Element) {
             if (diff.newValue !== null) {
-                targetEl.setAttribute(diff.attr, diff.newValue);
+                targetEl.setAttribute(diff.attr, diff.newValue ?? '');
             } else {
                 targetEl.removeAttribute(diff.attr);
             }
