@@ -7,6 +7,10 @@ import { migrate } from './db/db';
 import metricsRoute from './routes/metrics'
 import { setupWebsocket } from './ws';
 import sessionsRoute from './routes/sessions'
+import errorsRoute from './routes/errors'
+import userRoute from './routes/user'
+import projectsRoute from './routes/projects'
+import cookieParser from 'cookie-parser'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,10 +20,14 @@ const PORT = 3000;
 
 // 1. Enable CORS for all origins
 app.use(cors({
-    origin: '*',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Must be exact origin for credentials
     methods: ['POST', 'OPTIONS', 'GET'],
-    allowedHeaders: ['Content-Type']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // Crucial for cookies to work across ports
 }));
+
+// Parse cookies
+app.use(cookieParser());
 
 // 2. Parse incoming JSON payloads (from our sendBeacon Blob)
 app.use(express.json());
@@ -34,9 +42,11 @@ app.use(express.static(projectRoot));
 // 3. The ingest route
 app.use('/api', ingestRoute)
 
-// metrics route
+app.use('/api/auth', userRoute)
+app.use('/api', projectsRoute)
 app.use('/api', metricsRoute)
 app.use('/api', sessionsRoute)
+app.use('/api', errorsRoute)
 
 async function start() {
     await migrate();

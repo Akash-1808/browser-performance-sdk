@@ -3,7 +3,7 @@ import { useWebSocket, type LiveEvent } from '../hooks/useWebSocket'
 import { VitalGauge } from '../components/VitalGauge'
 import { useMemo, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-
+import { useDomain } from '../context/DomainContext'
 
 interface MetricResponse {
     overall: {
@@ -13,7 +13,7 @@ interface MetricResponse {
     series: { time: string; metric: string; p75: number }[];
 }
 export function OverviewPage() {
-    const domain = 'localhost'
+    const { domain } = useDomain();
     const [range, setRange] = useState<'1h' | '24h' | '7d' | '30d'>('24h')
     const [selectedEvent, setSelectedEvent] = useState<LiveEvent | null>(null)
 
@@ -21,7 +21,7 @@ export function OverviewPage() {
         queryKey: ['metrics', domain, range],
         queryFn: async () => {
             // Your backend is mounted at /api/metrics, so hitting /metrics directly gives a 404!
-            const res = await fetch(`/api/metrics?domain=${domain}&range=${range}`);
+            const res = await fetch(`/api/metrics?domain=${domain}&range=${range}`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch metrics')
             const data: MetricResponse = await res.json();
             return data;

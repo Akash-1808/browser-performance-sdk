@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { db } from '../db/db';
+import { authenticate, authorizeDomain } from '../middleware/auth';
 
 const route = express.Router();
 
@@ -13,7 +14,7 @@ const RANGES = {
 
 type RangeKey = keyof typeof RANGES;
 
-route.get('/metrics', async (req: Request, res: Response) => {
+route.get('/metrics', authenticate, authorizeDomain, async (req: Request, res: Response) => {
     const domain = req.query.domain as string;
     const range = (req.query.range as string) || '24h';
 

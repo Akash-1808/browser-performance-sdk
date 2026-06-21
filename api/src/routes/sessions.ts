@@ -1,9 +1,10 @@
 import express, { Request, Response } from 'express'
 import { db } from '../db/db'
+import { authenticate, authorizeDomain } from '../middleware/auth'
 
 const router = express.Router()
 
-router.get('/sessions', async (req: Request, res: Response) => {
+router.get('/sessions', authenticate, authorizeDomain, async (req: Request, res: Response) => {
     const domain = req.query.domain as string
 
     if (!domain) {
@@ -27,7 +28,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
     return res.status(200).json(sessionsQuery.rows)
 })
 
-router.get('/sessions/:id', async (req: Request, res: Response) => {
+router.get('/sessions/:id', authenticate, authorizeDomain, async (req: Request, res: Response) => {
     const sessionId = req.params.id
 
     if (!sessionId) {

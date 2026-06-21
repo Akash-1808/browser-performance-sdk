@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SessionDetail } from "./SessionDetail";
+import { useNavigate } from "react-router-dom";
+import { useDomain } from "../context/DomainContext";
 
 interface SessionSummary {
     session_id: string;
@@ -10,23 +11,19 @@ interface SessionSummary {
 }
 
 export function SessionsPage() {
-    const domain = 'localhost';
-    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+    const { domain } = useDomain();
+    const navigate = useNavigate();
 
     const { data: sessions, isLoading, error } = useQuery<SessionSummary[]>({
         queryKey: ['sessions', domain],
         queryFn: async () => {
-            const res = await fetch(`/api/sessions?domain=${domain}`);
+            const res = await fetch(`/api/sessions?domain=${domain}`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch sessions');
             return res.json();
         }
     })
     if (isLoading) return <div className="container flex-center">Loading sessions...</div>;
     if (error) return <div className="container">Error loading sessions!</div>;
-
-    if (selectedSessionId) {
-        return <SessionDetail sessionId={selectedSessionId} onBack={() => setSelectedSessionId(null)} />
-    }
 
     return (
         <div className="container"
@@ -70,7 +67,7 @@ export function SessionsPage() {
 
                                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                onClick={() => setSelectedSessionId(session.session_id)}
+                                onClick={() => navigate(`/sessions/${session.session_id}`)}
                             >
                                 <td style={{
                                     padding: '1rem',

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
 import { ReplayPlayer } from "../components/ReplayPlayer";
 
 interface SessionEvent {
@@ -9,20 +10,16 @@ interface SessionEvent {
     meta?: any;
 }
 
-interface SessionDetailProps {
-    sessionId: string;
-    onBack: () => void;
-}
-
-export function SessionDetail({
-    sessionId, onBack
-}: SessionDetailProps) {
+export function SessionDetail() {
+    const { id: sessionId } = useParams<{ id: string }>();
+    console.log(sessionId)
+    const navigate = useNavigate();
     const [selectedEvent, setSelectedEvent] = useState<SessionEvent | null>(null);
 
     const { data: events, isLoading, error } = useQuery<SessionEvent[]>({
         queryKey: ['session', sessionId],
         queryFn: async () => {
-            const res = await fetch(`/api/sessions/${sessionId}`);
+            const res = await fetch(`/api/sessions/${sessionId}`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch session details');
             const rawEvents = await res.json();
 
@@ -48,7 +45,7 @@ export function SessionDetail({
         <div className="container" style={{
             paddingBottom: '4rem'
         }}>
-            <button onClick={onBack}
+            <button onClick={() => navigate('/sessions')}
                 style={{
                     background: 'transparent',
                     border: '1px solid var(--border-subtle)',
@@ -87,65 +84,65 @@ export function SessionDetail({
                     }}>
                     {
                         events?.map((event, index) => {
-                        const isError = event.metric === 'error';
-                        const isMutation = event.metric === 'mutation';
-                        const meta = event.meta;
+                            const isError = event.metric === 'error';
+                            const isMutation = event.metric === 'mutation';
+                            const meta = event.meta;
 
-                        return (<div key={index}
-                            onClick={() => (isError || isMutation) && setSelectedEvent(event)}
-                            style={{
-                                display: 'flex',
-                                gap: '1rem',
-                                borderBottom: '1px solid var(--border-subtle)',
-                                padding: '1rem',
-                                cursor: (isError || isMutation) ? 'pointer' : 'default',
-                                transition: 'background-color 0.2s',
-                                backgroundColor: isError ? 'rgba(255, 68, 68, 0.05)' : isMutation ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                                margin: '0 -1rem',
-                                borderRadius: '4px'
-                            }}
-                            onMouseEnter={(e) => {
-                                if (isError) e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
-                                if (isMutation) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                                if (isError) e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
-                                if (isMutation) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                            }}>
-                            <div style={{
-                                color: 'var(--text-secondary)',
-                                fontFamily: 'var(--font-mono)',
-                                fontSize: '0.875rem',
-                                width: '100px'
-                            }}>
-                                {new Date(event.time).toLocaleTimeString()}
-                            </div>
-                            <div>
-                                <span style={{
-                                    display: 'inline-block',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '4px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 'bold',
-                                    textTransform: 'uppercase',
-                                    backgroundColor: isError ? 'rgba(255,68,68,0.2)' : isMutation ? 'rgba(255,255,255,0.1)' : 'rgba(0,255,136,0.2)',
-                                    color: isError ? 'var(--status-critical)' : isMutation ? 'var(--text-primary)' : 'var(--status-good)',
-                                    marginBottom: '0.5rem'
+                            return (<div key={index}
+                                onClick={() => (isError || isMutation) && setSelectedEvent(event)}
+                                style={{
+                                    display: 'flex',
+                                    gap: '1rem',
+                                    borderBottom: '1px solid var(--border-subtle)',
+                                    padding: '1rem',
+                                    cursor: (isError || isMutation) ? 'pointer' : 'default',
+                                    transition: 'background-color 0.2s',
+                                    backgroundColor: isError ? 'rgba(255, 68, 68, 0.05)' : isMutation ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                                    margin: '0 -1rem',
+                                    borderRadius: '4px'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (isError) e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.1)';
+                                    if (isMutation) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (isError) e.currentTarget.style.backgroundColor = 'rgba(255, 68, 68, 0.05)';
+                                    if (isMutation) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
                                 }}>
-                                    {event.metric}
-                                </span>
                                 <div style={{
                                     color: 'var(--text-secondary)',
-                                    fontSize: '0.875rem'
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.875rem',
+                                    width: '100px'
                                 }}>
-                                    {isError && event.meta?.message}
-                                    {isMutation && `Target: ${meta?.target || 'unknown'} (+${Array.isArray(meta?.added) ? meta.added.length : 0} / -${Array.isArray(meta?.removed) ? meta.removed.length : 0})`}
-                                    {!isError && !isMutation && `Value: ${event.value !== null ? Number(event.value).toFixed(2) : 'N/A'}`}
+                                    {new Date(event.time).toLocaleTimeString()}
                                 </div>
-                            </div>
-                        </div>)
-                    })
-                }
+                                <div>
+                                    <span style={{
+                                        display: 'inline-block',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: '4px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 'bold',
+                                        textTransform: 'uppercase',
+                                        backgroundColor: isError ? 'rgba(255,68,68,0.2)' : isMutation ? 'rgba(255,255,255,0.1)' : 'rgba(0,255,136,0.2)',
+                                        color: isError ? 'var(--status-critical)' : isMutation ? 'var(--text-primary)' : 'var(--status-good)',
+                                        marginBottom: '0.5rem'
+                                    }}>
+                                        {event.metric}
+                                    </span>
+                                    <div style={{
+                                        color: 'var(--text-secondary)',
+                                        fontSize: '0.875rem'
+                                    }}>
+                                        {isError && event.meta?.message}
+                                        {isMutation && `Target: ${meta?.target || 'unknown'} (+${Array.isArray(meta?.added) ? meta.added.length : 0} / -${Array.isArray(meta?.removed) ? meta.removed.length : 0})`}
+                                        {!isError && !isMutation && `Value: ${event.value !== null ? Number(event.value).toFixed(2) : 'N/A'}`}
+                                    </div>
+                                </div>
+                            </div>)
+                        })
+                    }
                 </div>
             </div>
 

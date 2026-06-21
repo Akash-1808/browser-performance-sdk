@@ -28,6 +28,27 @@ export async function migrate(): Promise<void> {
     await client.query('BEGIN');
     await client.query(`CREATE EXTENSION IF NOT EXISTS timescaledb;`)
 
+    // 1. Users Table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email         TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at    TIMESTAMPTZ DEFAULT NOW()
+      );
+    `)
+
+    // 2 project table
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS projects (
+      id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id    UUID REFERENCES users(id) ON DELETE CASCADE,
+      name     TEXT NOT NULL,
+      domain   TEXT NOT NULL,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+      );`)
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS events (
         time        TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
@@ -58,6 +79,8 @@ export async function migrate(): Promise<void> {
     await client.query('COMMIT');
 
     console.log("Migration complete")
+  } catch (e) {
+    console.error('Error in db: ', e)
   } finally {
     await client.query('ROLLBACK').catch(() => { })
     client.release()

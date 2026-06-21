@@ -19,6 +19,11 @@ services:
       - NODE_ENV=production
     depends_on:
       - db
-
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
 volumes:
   postgres_data:
