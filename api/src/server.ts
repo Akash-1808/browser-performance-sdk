@@ -13,26 +13,25 @@ import cookieParser from 'cookie-parser'
 const app = express();
 const PORT = 3000;
 
-// ===== INGEST CORS — runs FIRST, before anything else =====
-// Handles preflight AND sets headers on real requests
-app.use('/api/ingest', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(204);
-    }
-    next();
-});
+// ===== 1. INGEST CORS — completely open to the public =====
+app.use('/api/ingest', cors({
+    origin: '*',
+    methods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'x-requested-with', 'Accept']
+}));
 
-// ===== DASHBOARD CORS — credentials-based, restricted origin =====
-const dashboardOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+// ===== 2. DASHBOARD CORS — restricted to frontend url =====
+// Remove any trailing slash from the env variable just in case
+const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const dashboardOrigin = rawFrontendUrl.endsWith('/') ? rawFrontendUrl.slice(0, -1) : rawFrontendUrl;
+
 app.use((req, res, next) => {
-    // Don't apply dashboard CORS to ingest (already handled above)
-    if (req.path.startsWith('/api/ingest')) return next();
+    // Skip if it's the ingest route (already handled above)
+    if (req.originalUrl.includes('/api/ingest')) return next();
+    
     cors({
         origin: [dashboardOrigin, 'http://localhost:5173'],
-        methods: ['POST', 'OPTIONS', 'GET'],
+        methods: ['POST', 'OPTIONS', 'GET', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true
     })(req, res, next);
