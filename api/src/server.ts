@@ -18,12 +18,24 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3000;
 
-// 1. Enable CORS for all origins
+// 1. Enable CORS — allow the dashboard + any website using the SDK
+const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:5173',  // local dev
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Must be exact origin for credentials
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like sendBeacon, curl, or server-to-server)
+        if (!origin) return callback(null, true);
+        // Allow our known dashboard origins
+        if (allowedOrigins.includes(origin)) return callback(null, origin);
+        // Allow ANY origin for the SDK ingest endpoint (it's a public API)
+        return callback(null, origin);
+    },
     methods: ['POST', 'OPTIONS', 'GET'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true // Crucial for cookies to work across ports
+    credentials: true // Crucial for cookies to work on dashboard
 }));
 
 // Parse cookies
