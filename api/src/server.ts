@@ -13,6 +13,12 @@ import cookieParser from 'cookie-parser'
 const app = express();
 const PORT = 3000;
 
+// Top-level logger to debug Render requests
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} (Origin: ${req.headers.origin})`);
+    next();
+});
+
 // ===== 1. INGEST CORS — completely open to the public =====
 app.use('/api/ingest', cors({
     origin: '*',
@@ -41,9 +47,11 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 
 // 3. Parse incoming JSON payloads (from our sendBeacon Blob)
-app.use(express.json());
+// Increased limit to 10mb because SDK payloads (events, DOM snapshots) can be large!
+// If the payload exceeds the limit, Express throws a 413 error which the browser sees as a CORS error.
+app.use(express.json({ limit: '10mb' }));
 // Fallback text parser just in case the browser drops the content-type
-app.use(express.text({ type: 'text/plain' }));
+app.use(express.text({ type: 'text/plain', limit: '10mb' }));
 
 // 5. The ingest route
 app.use('/api', ingestRoute)
