@@ -13,10 +13,22 @@ import cookieParser from 'cookie-parser'
 const app = express();
 const PORT = 3000;
 
-// PRIVATE endpoints — dashboard needs credentials (cookies) so origin must be exact
-// Skip /api/ingest since it has its own open CORS in the route file
+// ===== INGEST CORS — runs FIRST, before anything else =====
+// Handles preflight AND sets headers on real requests
+app.use('/api/ingest', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204);
+    }
+    next();
+});
+
+// ===== DASHBOARD CORS — credentials-based, restricted origin =====
 const dashboardOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use((req, res, next) => {
+    // Don't apply dashboard CORS to ingest (already handled above)
     if (req.path.startsWith('/api/ingest')) return next();
     cors({
         origin: [dashboardOrigin, 'http://localhost:5173'],

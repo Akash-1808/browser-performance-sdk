@@ -8,17 +8,7 @@ import { broadcast } from "../ws";
 
 const router = express.Router();
 
-// Handle CORS preflight for /ingest (browser sends OPTIONS before POST)
-router.options('/ingest', (req: Request, res: Response) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.set('Access-Control-Allow-Headers', 'Content-Type');
-    res.status(204).send();
-});
-
 router.post('/ingest', async (req: Request, res: Response) => {
-    // Set CORS headers on every response
-    res.set('Access-Control-Allow-Origin', '*');
     let payload = req.body
 
     if (typeof payload == 'string') {
