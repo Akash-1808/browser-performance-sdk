@@ -7,11 +7,14 @@ if (!process.env.DATABASE_URL) {
 }
 
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || 'postgres://user:pass@localhost:5432/perf',
   max: 10,                  // max 10 connection in a pool
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 2_000,
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 })
 
 // Test the connection on startup
@@ -48,6 +51,16 @@ export async function migrate(): Promise<void> {
       domain   TEXT NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW()
       );`)
+
+    // Seed the Demo Project globally, extracting the clean hostname from the FRONTEND_URL
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost';
+    const demoDomain = new URL(frontendUrl).hostname;
+
+    await client.query(`
+      INSERT INTO projects (id, name, domain) 
+      VALUES ('00000000-0000-0000-0000-000000000000', 'Demo Project', $1)
+      ON CONFLICT (id) DO NOTHING;
+    `, [demoDomain])
 
     await client.query(`
       CREATE TABLE IF NOT EXISTS events (

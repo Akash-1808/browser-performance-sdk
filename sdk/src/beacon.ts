@@ -16,8 +16,7 @@ import type { QueuedEvent, BeaconMeta, IngestPayload, MetricType } from "./type"
 let queue: QueuedEvent[] = []
 let timer: ReturnType<typeof setTimeout> | null = null;
 let meta: BeaconMeta = { projectId: '', sessionId: '', domain: '', timestamp: 0, url: '' }
-let ingestUrl = 'http://localhost:3000/ingest'
-
+let ingestUrl = 'http://localhost:3000/ingest';
 
 const FLUSH_INTERVAL_MS = 2000
 const MAX_QUEUE_SIZE = 200  // safety cap- avoid gaint payloads

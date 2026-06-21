@@ -21,7 +21,7 @@ export function DomainProvider({
     children
 }: { children: React.ReactNode }) {
     const { user } = useAuth();
-    const [domain, setDomain] = useState<string>('localhost');
+    const [domain, setDomain] = useState<string>(window.location.hostname);
 
     const { data: projects } = useQuery<Project[]>({
         queryKey: ['projects', user?.id],
@@ -34,14 +34,14 @@ export function DomainProvider({
     });
 
     useEffect(() => {
-        // Auto-select the first project domain when projects load if currently on localhost
-        if (projects && projects.length > 0 && domain === 'localhost') {
+        // Auto-select the first project domain when projects load if currently on the demo domain
+        if (projects && projects.length > 0 && domain === window.location.hostname) {
             setDomain(projects[0].domain);
         }
         
-        // If user logs out, revert back to localhost (Frictionless Demo)
+        // If user logs out, revert back to the dynamic Demo domain (Frictionless Demo)
         if (!user) {
-            setDomain('localhost');
+            setDomain(window.location.hostname);
         }
     }, [projects, user]);
 
