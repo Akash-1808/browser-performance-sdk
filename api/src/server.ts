@@ -13,17 +13,18 @@ import cookieParser from 'cookie-parser'
 const app = express();
 const PORT = 3000;
 
-// 1. PUBLIC endpoint — SDK ingest must accept requests from ANY website
-app.use('/api/ingest', cors({ origin: '*', methods: ['POST', 'OPTIONS'] }));
-
-// 2. PRIVATE endpoints — dashboard needs credentials (cookies) so origin must be exact
+// PRIVATE endpoints — dashboard needs credentials (cookies) so origin must be exact
+// Skip /api/ingest since it has its own open CORS in the route file
 const dashboardOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
-app.use(cors({
-    origin: [dashboardOrigin, 'http://localhost:5173'],
-    methods: ['POST', 'OPTIONS', 'GET'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-}));
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api/ingest')) return next();
+    cors({
+        origin: [dashboardOrigin, 'http://localhost:5173'],
+        methods: ['POST', 'OPTIONS', 'GET'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true
+    })(req, res, next);
+});
 
 // Parse cookies
 app.use(cookieParser());
