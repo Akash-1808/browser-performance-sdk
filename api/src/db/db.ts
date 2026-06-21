@@ -7,14 +7,20 @@ if (!process.env.DATABASE_URL) {
 }
 
 
-const isProduction = process.env.NODE_ENV === 'production';
+const dbUrl = process.env.DATABASE_URL || 'postgres://user:pass@localhost:5432/perf';
+const isCloudDb = !dbUrl.includes('localhost');
+
+// Force Node.js to accept cloud DB certificates globally
+if (isCloudDb) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 export const db = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://user:pass@localhost:5432/perf',
+  connectionString: dbUrl,
   max: 10,                  // max 10 connection in a pool
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 2_000,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: isCloudDb ? { rejectUnauthorized: false } : false,
 })
 
 // Test the connection on startup
