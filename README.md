@@ -7,6 +7,14 @@ https://github.com/user-attachments/assets/8c6aee63-0b26-4f4b-aa68-c583dce8ce50
 
 
 
+
+
+
+
+
+
+
+
 A lightweight, end-to-end performance monitoring SDK and dashboard. This project functions similarly to a minimal version of Datadog RUM or Sentry, capturing Core Web Vitals, DOM mutations for session replays, and JavaScript errors.
 
 It consists of three main parts:
