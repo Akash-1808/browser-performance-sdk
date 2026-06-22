@@ -1,6 +1,6 @@
 import './App.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { DomainProvider, useDomain } from './context/DomainContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -204,9 +204,9 @@ function Sidebar() {
                   color: 'var(--accent-primary)'
                 }}>
                   {`<script src="https://your-cdn.com/sdk.js" 
-  data-project-id="${createdProjectId}"
-  data-ingest-url="http://localhost:3000/api/ingest">
-</script>`}
+                  data-project-id="${createdProjectId}"
+                  data-ingest-url="http://localhost:3000/api/ingest">
+                  </script>`}
                 </pre>
                 <button onClick={() => {
                   setIsAddingProject(false);
@@ -222,7 +222,9 @@ function Sidebar() {
 }
 
 function App() {
-
+  useEffect(() => {
+    alert('you can test this dashboard by this page /test.html')
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
