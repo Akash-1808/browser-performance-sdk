@@ -232,8 +232,9 @@ function App() {
           <BrowserRouter>
             <div style={{
               display: 'flex',
-              minHeight: '100vh',
-              width: '100vw'
+              height: '100vh',
+              width: '100vw',
+              overflow: 'hidden'
             }}>
               {/* Sidebar */}
               <Sidebar />
