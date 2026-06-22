@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDomain } from "../context/DomainContext";
 import { ReplayPlayer } from "../components/ReplayPlayer";
 
 interface SessionEvent {
@@ -14,12 +15,13 @@ export function SessionDetail() {
     const { id: sessionId } = useParams<{ id: string }>();
     console.log(sessionId)
     const navigate = useNavigate();
+    const { domain } = useDomain();
     const [selectedEvent, setSelectedEvent] = useState<SessionEvent | null>(null);
 
     const { data: events, isLoading, error } = useQuery<SessionEvent[]>({
-        queryKey: ['session', sessionId],
+        queryKey: ['session', sessionId, domain],
         queryFn: async () => {
-            const res = await fetch(`/api/sessions/${sessionId}`, { credentials: 'include' });
+            const res = await fetch(`/api/sessions/${sessionId}?domain=${domain}`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to fetch session details');
             const rawEvents = await res.json();
 

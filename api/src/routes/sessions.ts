@@ -35,8 +35,15 @@ router.get('/sessions/:id', authenticate, authorizeDomain, async (req: Request, 
         return res.status(400).json({ error: 'Missing session ID parameter' })
     }
 
+    const domain = req.query.domain as string;
+
+    if (!domain) {
+        return res.status(400).json({ error: 'Missing domain parameter' })
+    }
+
     const result = await db.query(`
-        SELECT * FROM events WHERE session_id = $1 ORDER BY time ASC`, [sessionId])
+        SELECT * FROM events WHERE session_id = $1 AND domain = $2 ORDER BY time ASC
+    `, [sessionId, domain]);
 
     if (!result) {
         return res.status(404).json({ error: 'Session not found' })
