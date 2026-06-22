@@ -23,12 +23,12 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     }
 
     const token = req.cookies?.token;
-    
+
     if (!token) {
         res.status(401).json({ error: 'Unauthorized: Missing or invalid token' });
         return;
     }
-    
+
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string };
         req.user = decoded;
@@ -43,7 +43,7 @@ export const authorizeDomain = async (req: Request, res: Response, next: NextFun
     const domain = req.query.domain as string || req.body.domain as string;
 
     // Frictionless Demo Bypass
-    if (domain === 'localhost') {
+    if (domain === process.env.FRONTEND_URL || domain === 'localhost') {
         next();
         return;
     }
