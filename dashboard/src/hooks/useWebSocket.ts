@@ -27,8 +27,12 @@ export function useWebSocket(domain: string) {
         let reconnectDelay = 1000;
 
         const connect = () => {
-            // Your API is running on port 3000, not 8000
-            const ws = new WebSocket('ws://localhost:3000')
+            // In production, connect securely to Render. Locally, connect to localhost:3000
+            const wsUrl = import.meta.env.PROD
+                ? (import.meta.env.VITE_WS_URL as string || 'wss://browser-performance-sdk.onrender.com')
+                : 'ws://localhost:3000';
+
+            const ws = new WebSocket(wsUrl);
             wsRef.current = ws;
 
             ws.onopen = () => {
@@ -60,7 +64,7 @@ export function useWebSocket(domain: string) {
                         }
                         return base;
                     });
-                    
+
                     setEvents((prev) => {
                         // Spread both arrays to combine them
                         const combined = [...prev, ...newEvents]
