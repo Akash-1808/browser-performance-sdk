@@ -50,34 +50,33 @@ export function flush(): void {
     if (!queue.length) return
     if (!meta.projectId) return // no project id - dont send
 
-    const payload: IngestPayload = {
+    const payload = {
         projectId: meta.projectId,
         sessionId: meta.sessionId,
         domain: meta.domain,
         timestamp: meta.timestamp,
-        events: queue.splice(0) // automatically drain the queue
+        events: queue.splice(0, queue.length) // automatically drain the queue
     }
 
+    // CRITICAL: We MUST use 'text/plain' instead of 'application/json'.
+    // If you use 'application/json', Chrome forces a CORS preflight which 
+    // often fails or gets blocked. 'text/plain' is a CORS-safelisted type 
+    // so it sends immediately without a preflight!
     const blob = new Blob(
         [JSON.stringify(payload)],
-        { type: 'application/json' }
+        { type: 'text/plain' }
     )
-    // sendBeacon returns false if the browser can't queue the request.
-    // Fall back to a fire-and-forget fetch in that case.
+
     const sent = navigator.sendBeacon(ingestUrl, blob)
-    console.log(sent)
+    console.log("sendBeacon queued:", sent)
 
     if (!sent) {
-        // fetch fallback - keepalive ensure it survives tab close in modern browsers
-
+        // If sendBeacon returns false (payload > 64KB), fallback to fetch
         fetch(ingestUrl, {
             method: 'POST',
             body: blob,
-            keepalive: true,
-            mode: 'no-cors'
-        }).catch(() => {
-
-        })
+            keepalive: true
+        }).catch(() => { })
     }
 
 }

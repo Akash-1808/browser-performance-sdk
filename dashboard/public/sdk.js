@@ -44,21 +44,20 @@
       sessionId: meta.sessionId,
       domain: meta.domain,
       timestamp: meta.timestamp,
-      events: queue.splice(0)
+      events: queue.splice(0, queue.length)
       // automatically drain the queue
     };
     const blob = new Blob(
       [JSON.stringify(payload)],
-      { type: "application/json" }
+      { type: "text/plain" }
     );
     const sent = navigator.sendBeacon(ingestUrl, blob);
-    console.log(sent);
+    console.log("sendBeacon queued:", sent);
     if (!sent) {
       fetch(ingestUrl, {
         method: "POST",
         body: blob,
-        keepalive: true,
-        mode: "no-cors"
+        keepalive: true
       }).catch(() => {
       });
     }
