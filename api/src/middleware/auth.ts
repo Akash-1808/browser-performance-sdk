@@ -15,10 +15,11 @@ declare global {
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
     // Frictionless Demo Bypass:
-    // If a request wants data for the global demo project, we let them through without a token!
-    // The demo project ID is 00000000-0000-0000-0000-000000000000
+    // If a request wants data for the global demo project or the specific demo domain, let them through!
     const requestedProjectId = req.query.projectId || req.body.projectId;
-    if (requestedProjectId === '00000000-0000-0000-0000-000000000000') {
+    const domain = req.query.domain as string || req.body.domain as string;
+
+    if (requestedProjectId === '00000000-0000-0000-0000-000000000000' || domain === 'browser-performance-sdk.vercel.app' || domain === 'localhost') {
         return next();
     }
 
@@ -43,7 +44,7 @@ export const authorizeDomain = async (req: Request, res: Response, next: NextFun
     const domain = req.query.domain as string || req.body.domain as string;
 
     // Frictionless Demo Bypass
-    if (domain === process.env.FRONTEND_URL || domain === 'localhost') {
+    if (domain === 'browser-performance-sdk.vercel.app' || domain === 'localhost') {
         next();
         return;
     }
