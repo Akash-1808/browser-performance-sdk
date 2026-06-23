@@ -114,8 +114,3 @@ Single-instance deployment. For horizontal scaling, replace `rateLimit.ts` with 
 ## Benchmarks
 - **Ingestion throughput**: Tested at ~6,500 requests/second using `k6`.
 - **Ingestion p99 latency**: 67.39 ms (p95 = 63.83 ms) under peak load with 50 concurrent virtual users inserting bulk rows into TimescaleDB.
-- Dashboard query time: [To be measured] ms for 24h aggregation
-
-## Test coverage
-- SDK: [To be measured]
-- API: [To be measured]
